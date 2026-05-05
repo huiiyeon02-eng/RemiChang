@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Remi Chang — 短影音剪輯與內容製作。協助品牌與個人創作者製作 IG Reels、TikTok 等短影音，讓影片被看完、被看見。" />
+<title>Remi Chang — 短影音剪輯 / IG Reels & TikTok Editor</title>
+
+<!-- ============================================
+     字體 Fonts
+     - Fraunces:英文襯線(設計感、雜誌調性)
+     - Noto Serif TC:中文襯線(品牌感)
+     - Noto Sans TC:中文無襯線(內文、易讀)
+============================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================
+   1. 設計變數 / Design Tokens
+   ============================================ */
+:root {
+  /* 米白色系 — 質感、溫暖、親近 */
+  --bg:           #FAF6F0;   /* 主背景:暖米色 */
+  --bg-soft:      #F2EBDF;   /* 次背景:淺米卡片 */
+  --bg-card:      #FFFFFF;   /* 純白卡片 */
+  --line:         #E6DDCD;   /* 分隔線 */
+
+  /* 文字 */
+  --ink:          #1E1A15;   /* 主文字:深咖啡黑(比純黑柔和)*/
+  --ink-soft:     #5C5448;   /* 次文字 */
+  --ink-mute:     #9A9183;   /* 提示、標籤 */
+
+  /* 點綴色 — 暖駝、乾燥玫瑰 */
+  --accent:       #B08968;   /* 暖駝色:CTA、hover */
+  --accent-soft:  #E9D8C2;   /* 點綴底色 */
+  --accent-deep:  #8B6A4F;   /* 深駝:hover 加深 */
+
+  /* 圓潤造型 */
+  --r-sm: 12px;
+  --r-md: 20px;
+  --r-lg: 32px;
+  --r-xl: 48px;
+  --r-pill: 999px;
+
+  /* 動畫 */
+  --ease: cubic-bezier(.22,.61,.36,1);
+
+  /* 容器 */
+  --maxw: 1200px;
+  --pad-x: clamp(20px, 5vw, 64px);
+}
+
+/* ============================================
+   2. 基礎重置 / Reset
+   ============================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: "Noto Sans TC", "Inter", system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  overflow-x: hidden;
+}
+img, iframe { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+/* 中文不適合斜體，把瀏覽器預設的 em 斜體關掉 */
+em { font-style: normal; }
+
+/* 字型階層 — 中英混排:英文用 Fraunces，中文用 Noto Serif TC */
+.serif {
+  font-family: "Fraunces", "Noto Serif TC", serif;
+  font-weight: 400;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.01em;
+}
+.eyebrow {
+  font-family: "Fraunces", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+}
+
+/* ============================================
+   3. 容器 & 共用 / Layout helpers
+   ============================================ */
+.container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-left: var(--pad-x);
+  padding-right: var(--pad-x);
+}
+section { padding: clamp(72px, 10vw, 140px) 0; }
+.section-head { margin-bottom: clamp(40px, 5vw, 64px); }
+.section-head h2 {
+  font-family: "Fraunces", "Noto Serif TC", serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  line-height: 1.15;
+  margin-top: 8px;
+  letter-spacing: -0.015em;
+}
+.section-head h2 em {
+  font-style: normal;
+  color: var(--accent-deep);
+  font-weight: 500;
+}
+.section-head p.lead {
+  margin-top: 16px;
+  max-width: 56ch;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+
+/* ============================================
+   4. 導覽列 / Nav
+   ============================================ */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(12px);
+  background: rgba(250, 246, 240, 0.78);
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s var(--ease);
+}
+.nav.scrolled { border-bottom-color: var(--line); }
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px var(--pad-x);
+  max-width: var(--maxw); margin: 0 auto;
+}
+.brand {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+.brand span { color: var(--accent-deep); }
+.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links a {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  position: relative;
+  transition: color .25s var(--ease);
+}
+.nav-links a::after {
+  content: ""; position: absolute; left: 0; bottom: -4px;
+  width: 0; height: 1px; background: var(--accent);
+  transition: width .3s var(--ease);
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  padding: 10px 22px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.9rem;
+  transition: background .25s var(--ease), transform .25s var(--ease);
+}
+.nav-cta:hover { background: var(--accent-deep); transform: translateY(-1px); }
+.nav-toggle { display: none; }
+@media (max-width: 760px) {
+  .nav-links { display: none; }
+  .nav-cta { padding: 8px 18px; font-size: 0.85rem; }
+}
+
+/* ============================================
+   5. Hero 首屏
+   ============================================ */
+.hero {
+  padding-top: clamp(60px, 8vw, 100px);
+  padding-bottom: clamp(60px, 8vw, 100px);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  /* 背景柔和裝飾圓 */
+  content: "";
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.hero-grid {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(40px, 6vw, 80px);
+  align-items: center;
+}
+.hero-text .eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  font-style: normal;
+  margin-bottom: 28px;
+}
+.hero-text .eyebrow::before {
+  content: ""; width: 6px; height: 6px;
+  border-radius: 50%; background: #4ade80;
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.2);
+}
+.hero h1 {
+  font-family: "Fraunces", "Noto Serif TC", serif;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 6vw, 4.6rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent-deep);
+  font-weight: 500;
+}
+.hero h1 .underline {
+  position: relative;
+  display: inline-block;
+}
+.hero h1 .underline::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 6px;
+  width: 100%; height: 10px;
+  background: var(--accent-soft);
+  z-index: -1;
+  border-radius: 4px;
+}
+.hero-sub {
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  color: var(--ink-soft);
+  max-width: 52ch;
+  margin-bottom: 36px;
+}
+.hero-cta-row {
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 28px;
+  border-radius: var(--r-pill);
+  font-size: 0.98rem;
+  font-weight: 500;
+  transition: all .3s var(--ease);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--ink);
+  color: var(--bg);
+}
+.btn-primary:hover {
+  background: var(--accent-deep);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -12px rgba(176, 137, 104, 0.5);
+}
+.btn-primary .arrow { transition: transform .3s var(--ease); }
+.btn-primary:hover .arrow { transform: translateX(4px); }
+.btn-ghost {
+  color: var(--ink);
+  border: 1px solid var(--line);
+  background: transparent;
+}
+.btn-ghost:hover {
+  border-color: var(--ink);
+  background: var(--bg-card);
+}
+
+/* Hero 影片框 */
+.hero-video {
+  aspect-ratio: 9 / 16;
+  background: var(--bg-soft);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow:
+    0 30px 60px -30px rgba(30, 26, 21, 0.25),
+    0 0 0 1px var(--line);
+  position: relative;
+  max-height: 640px;
+  justify-self: center;
+  width: 100%;
+  max-width: 360px;
+}
+.hero-video iframe,
+.hero-video video {
+  width: 100%; height: 100%;
+  border: 0;
+  object-fit: cover;
+  display: block;
+}
+.hero-video .placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+  color: var(--ink-mute);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 20px;
+}
+.hero-video .placeholder strong { color: var(--ink-soft); display: block; margin-bottom: 4px; }
+
+@media (max-width: 880px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-video { max-width: 320px; margin-top: 20px; }
+}
+
+/* ============================================
+   6. Stats / 成果區
+   ============================================ */
+.stats {
+  background: var(--bg-soft);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.stat {
+  padding: 16px 24px;
+  text-align: center;
+  border-right: 1px solid var(--line);
+}
+.stat:last-child { border-right: none; }
+.stat .num {
+  font-family: "Fraunces", serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.stat .num em {
+  font-style: normal;
+  color: var(--accent-deep);
+  font-size: 0.6em;
+  margin-left: 2px;
+}
+.stat .label {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  letter-spacing: 0.02em;
+}
+@media (max-width: 760px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat { border-right: none; padding: 28px 12px; }
+  .stat:nth-child(odd) { border-right: 1px solid var(--line); }
+  .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--line); }
+}
+
+/* ============================================
+   7. 作品展示 / Portfolio
+   ============================================ */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.work-card {
+  display: flex; flex-direction: column;
+  gap: 20px;
+  transition: transform .4s var(--ease);
+}
+.work-card:hover { transform: translateY(-6px); }
+.work-video {
+  aspect-ratio: 9 / 16;
+  background: var(--bg-soft);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 40px -25px rgba(30, 26, 21, 0.3);
+  border: 1px solid var(--line);
+}
+.work-video iframe { width: 100%; height: 100%; border: 0; }
+.work-video .placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 10px;
+  color: var(--ink-mute);
+  font-size: 0.85rem;
+  text-align: center; padding: 16px;
+  background: linear-gradient(135deg, var(--bg-soft), var(--accent-soft));
+}
+.work-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--accent-deep);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.work-card h3 {
+  font-family: "Fraunces", "Noto Serif TC", serif;
+  font-weight: 500;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  margin-top: -4px;
+}
+.work-card p {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.work-result {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  margin-top: 4px;
+  align-self: flex-start;
+}
+.work-result strong { color: var(--accent-deep); font-weight: 600; }
+
+@media (max-width: 980px) { .portfolio-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .portfolio-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+/* ============================================
+   8. 服務項目 / Services
+   ============================================ */
+.services {
+  background: var(--bg-soft);
+}
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.service-card {
+  background: var(--bg-card);
+  border-radius: var(--r-lg);
+  padding: clamp(28px, 4vw, 44px);
+  border: 1px solid var(--line);
+  transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 50px -30px rgba(30, 26, 21, 0.25);
+}
+.service-icon {
+  width: 56px; height: 56px;
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  color: var(--accent-deep);
+}
+.service-card h3 {
+  font-family: "Fraunces", "Noto Serif TC", serif;
+  font-weight: 500;
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+.service-card > p {
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+}
+.service-list {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.service-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.service-list li::before {
+  content: "✦";
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.service-price {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--line);
+  font-size: 0.92rem;
+  color: var(--ink-mute);
+}
+.service-price strong { color: var(--ink); font-family: "Fraunces", serif; }
+.price-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--line);
+}
+.price-row:last-child { border-bottom: none; }
+.price-row span { color: var(--ink-soft); }
+.price-row strong {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  color: var(--ink);
+  font-size: 1rem;
+}
+.price-row.note { color: var(--accent-deep); font-size: 0.85rem; }
+.price-row.note strong { color: var(--accent-deep); font-size: 0.92rem; }
+
+@media (max-width: 760px) { .services-grid { grid-template-columns: 1fr; } }
+
+/* ============================================
+   9. 合作流程 / Process
+   ============================================ */
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  position: relative;
+}
+.process-step {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 32px 24px;
+  transition: transform .35s var(--ease), border-color .35s var(--ease);
+  position: relative;
+}
+.process-step:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+.process-num {
+  font-family: "Fraunces", serif;
+  font-style: italic;
+  font-size: 2.4rem;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 16px;
+  display: block;
+}
+.process-step h4 {
+  font-family: "Fraunces", "Noto Serif TC", serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.process-step p {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 880px) { .process-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .process-grid { grid-template-columns: 1fr; } }
+
+/* ============================================
+   10. About me
+   ============================================ */
+.about {
+  background: var(--bg-soft);
+}
+.about-grid {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr;
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+.about-photo {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-lg);
+  background:
+    linear-gradient(135deg, var(--accent-soft), var(--bg-card));
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -30px rgba(30, 26, 21, 0.3);
+  border: 1px solid var(--line);
+}
+.about-photo img { width: 100%; height: 100%; object-fit: cover; }
+.about-photo .placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-mute); font-size: 0.9rem; padding: 20px; text-align: center;
+}
+.about-text h2 {
+  font-family: "Fraunces", "Noto Serif TC", serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+  margin: 8px 0 24px;
+  letter-spacing: -0.015em;
+}
+.about-text h2 em { font-style: normal; color: var(--accent-deep); font-weight: 500; }
+.about-text p {
+  color: var(--ink-soft);
+  font-size: 1.02rem;
+  margin-bottom: 16px;
+}
+.about-tags {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 28px;
+}
+.about-tags span {
+  padding: 8px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+@media (max-width: 880px) { .about-grid { grid-template-columns: 1fr; } }
+
+/* ============================================
+   11. CTA 聯絡區
+   ============================================ */
+.cta {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 65%);
+  transform: translate(-50%, -50%);
+  opacity: 0.6;
+  z-index: 0;
+  pointer-events: none;
+}
+.cta-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+.cta h2 {
+  font-family: "Fraunces", "Noto Serif TC", serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+.cta h2 em { font-style: normal; color: var(--accent-deep); font-weight: 500; }
+.cta p.lead {
+  color: var(--ink-soft);
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+}
+.cta-channels {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.channel {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  font-size: 0.98rem;
+  font-weight: 500;
+  transition: all .3s var(--ease);
+}
+.channel:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+}
+.channel.primary {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+.channel.primary:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+  color: var(--bg);
+}
+.channel svg { flex-shrink: 0; }
+.cta-note {
+  font-size: 0.88rem;
+  color: var(--ink-mute);
+  margin-top: 12px;
+}
+
+/* ============================================
+   12. Footer
+   ============================================ */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 40px var(--pad-x);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-mute);
+}
+footer .brand { font-size: 1rem; display: block; margin-bottom: 8px; color: var(--ink); }
+
+/* ============================================
+   13. 進場動畫 / Reveal on scroll
+   ============================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal.delay-1 { transition-delay: .1s; }
+.reveal.delay-2 { transition-delay: .2s; }
+.reveal.delay-3 { transition-delay: .3s; }
+
+/* 尊重「減少動態」 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ============================================
+     導覽列 NAV
+============================================ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      Remi <span>Chang.</span>
+    </a>
+    <div class="nav-links">
+      <a href="#works">作品</a>
+      <a href="#services">服務</a>
+      <a href="#process">流程</a>
+      <a href="#about">關於</a>
+    </div>
+    <a href="#contact" class="nav-cta">聊聊合作 →</a>
+  </div>
+</nav>
+
+<!-- ============================================
+     1. HERO 首屏
+============================================ -->
+<header class="hero" id="top">
+  <div class="container hero-grid">
+
+    <div class="hero-text">
+      <span class="eyebrow reveal">Freelance Video Editor · 短影音剪輯師</span>
+
+      <h1 class="serif reveal delay-1">
+        預算有限，也能剪出<br>
+        <em>演算法喜歡</em>、<span class="underline">符合 IP 特色</span><br>
+        的短影音。
+      </h1>
+
+      <p class="hero-sub reveal delay-2">
+        我是 <strong>Remi Chang</strong>，專做長短影音剪輯。
+        熟悉社群短影音的製作流程，擅長抓觀眾愛的節奏與呈現方式 ──
+        協助品牌與創作者快速產出乾淨俐落、節奏流暢的高質感內容。
+      </p>
+
+      <div class="hero-cta-row reveal delay-3">
+        <a href="#contact" class="btn btn-primary">
+          私訊聊聊
+          <span class="arrow">→</span>
+        </a>
+        <a href="#works" class="btn btn-ghost">先看看作品</a>
+      </div>
+    </div>
+
+    <!-- Hero 主打影片 -->
+    <!-- 🔁 替換:把 REEL_ID 換成你最想推的那支 reel 的 ID
+         例:https://www.instagram.com/reel/ABC123XYZ/ → REEL_ID = ABC123XYZ -->
+    <div class="hero-video reveal delay-2">
+      <iframe
+        src="https://drive.google.com/file/d/1omG1bL0NpiueqW7D8M-KLGMIWbLsT_0l/view?usp=preview"
+        scrolling="no" allowtransparency="true" allow="encrypted-media">
+      </iframe>
+      <!-- 若還沒填，把 iframe 註解掉，顯示下面這個佔位 -->
+      <!--
+      <div class="placeholder">
+        <strong>主打影片位置</strong>
+        建議放最有「轉換力」的那支(數據+作品力都強)
+      </div>
+      -->
+    </div>
+
+  </div>
+</header>
+
+
+<!-- ============================================
+     2. 成果數據 STATS
+============================================ -->
+<section class="stats" id="stats">
+  <div class="container stats-grid">
+
+    <div class="stat reveal">
+      <!-- 🔁 換成你的真實數據(填多少都比空白好) -->
+      <div class="num">3<em>天</em></div>
+      <div class="label">標準交件時程</div>
+    </div>
+
+    <div class="stat reveal delay-1">
+      <div class="num">2<em>次</em></div>
+      <div class="label">免費修改次數</div>
+    </div>
+
+    <div class="stat reveal delay-2">
+      <div class="num">50<em>+</em></div>
+      <div class="label">累積完成作品</div>
+    </div>
+
+    <div class="stat reveal delay-3">
+      <div class="num">450<em>起</em></div>
+      <div class="label">入手價格友善</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============================================
+     3. 作品展示 PORTFOLIO
+============================================ -->
+<section id="works">
+  <div class="container">
+
+    <div class="section-head reveal">
+      <span class="eyebrow">Selected Works</span>
+      <h2 class="serif">乾淨俐落的節奏，<em>讓人停下來看</em>。</h2>
+      <p class="lead">
+        以下作品來自我經營的品牌 IG 與實際接案 ──
+        每一支都附上剪輯思路與觀看反饋，讓你看見能套用在你內容上的可能性。
+      </p>
+    </div>
+
+    <div class="portfolio-grid">
+
+      <!-- 作品 1 -->
+      <article class="work-card reveal">
+        <div class="work-video">
+          <!-- 🔁 替換 REEL_ID -->
+          <iframe src="https://www.instagram.com/reel/REEL_ID_1/embed" scrolling="no" allowtransparency="true" allow="encrypted-media"></iframe>
+          <!-- <div class="placeholder">作品 1 影片位置</div> -->
+        </div>
+        <span class="work-tag">Brand Social · 美妝品牌曝光</span>
+        <h3>用日常內容，自然帶出產品</h3>
+        <p>
+          透過「辦公室日常 + 情境帶入」的剪輯方式，
+          讓產品出現得不突兀，同時維持內容的觀看流暢度。
+        </p>
+        <span class="work-result">適合 · <strong>美妝、生活風格品牌</strong></span>
+      </article>
+        
+     <!-- 作品 4(可選，刪除即剩 3 支) -->
+     <article class="work-card reveal">
+  <div class="work-video">
+    <iframe src="https://www.instagram.com/reel/REEL_ID_4/embed" scrolling="no" allowtransparency="true" allow="encrypted-media"></iframe>
+  </div>
+
+  <span class="work-tag">Street Interview · 活動內容轉換</span>
+
+  <h3>用「追星話題」，讓人留下來看產品</h3>
+
+  <p>
+    把原本容易被滑過的街訪內容轉成有話題的影片，
+    再自然帶入產品體驗，提升觀看停留與互動。
+  </p>
+
+  <span class="work-result">
+    重點 · <strong>高停留開頭 × 自然導入產品</strong>
+  </span>
+</article>
+
+      <!-- 作品 2 -->
+      <article class="work-card reveal delay-1">
+        <div class="work-video">
+          <iframe src="https://youtube.com/shorts/XZwPmjF4mNY?feature=share" scrolling="no" allowtransparency="true" allow="encrypted-media"></iframe>
+        </div>
+        <span class="work-tag">Client Work · 客戶素材剪輯</span>
+        <h3>只有素材，也能剪出節奏與重點</h3>
+        <p>
+          客戶提供原始素材，透過節奏整理與重點強化，
+          讓資訊更清楚、觀看更順。
+        </p>
+        <span class="work-result">適合 · <strong>有素材想優化的客戶</strong></span>
+      </article>
+
+      <!-- 作品 3 -->
+      <article class="work-card reveal delay-2">
+        <div class="work-video">
+          <iframe src="https://www.instagram.com/reel/REEL_ID_3/embed" scrolling="no" allowtransparency="true" allow="encrypted-media"></iframe>
+        </div>
+        <span class="work-tag">Brand Story · 品牌形象</span>
+        <h3>讓品牌故事，不只是介紹</h3>
+        <p>
+          透過畫面節奏與情緒鋪陳，
+          讓品牌故事不只是被看完，而是被記住。
+        </p>
+        <span class="work-result">適合 · <strong>品牌敘事、形象短片</strong></span>
+      </article>
+
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============================================
+     4. 服務項目 SERVICES
+============================================ -->
+<section class="services" id="services">
+  <div class="container">
+
+    <div class="section-head reveal">
+      <span class="eyebrow">What I Offer</span>
+      <h2 class="serif">合作方式，<em>彈性又單純</em>。</h2>
+      <p class="lead">
+        以接案合作為主，提供單支或短期合作形式。
+        適合想用較低預算、穩定產出短影音的個人創作者與小型品牌。
+      </p>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- 服務 1 -->
+      <div class="service-card reveal">
+        <div class="service-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="14" height="12" rx="2"/><path d="m22 8-6 4 6 4V8Z"/>
+          </svg>
+        </div>
+        <h3>短影音剪輯 / Video Editing</h3>
+        <p>從素材到成品一條龍處理。適合 IG Reels、TikTok、小紅書、Vlog、產品介紹、活動紀錄等社群短影音。</p>
+        <ul class="service-list">
+          <li>基礎順剪 + 節奏調整</li>
+          <li>字幕、字卡設計</li>
+          <li>音效 / 背景音樂搭配</li>
+          <li>轉場與特效處理</li>
+          <li>2 次免費修改 · 3 天內交件</li>
+        </ul>
+        <div class="service-price">
+          <div class="price-row"><span>30 秒內</span><strong>NT$ 450</strong></div>
+          <div class="price-row"><span>30–60 秒</span><strong>NT$ 800</strong></div>
+          <div class="price-row"><span>1 分鐘以上</span><strong>費用可討論</strong></div>
+          <div class="price-row note"><span>當日加急</span><strong>+NT$ 300</strong></div>
+        </div>
+      </div>
+
+      <!-- 服務 2 -->
+      <div class="service-card reveal delay-1">
+        <div class="service-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.5" cy="6.5" r="1"/>
+          </svg>
+        </div>
+        <h3>貼文設計 + 短期合作 / Custom Plan</h3>
+        <p>需要一系列影片或想穩定產出的品牌、創作者，可以聊聊客製方案 ── 搭配統一風格、優先排程，讓內容看起來更有整體感。</p>
+        <ul class="service-list">
+          <li>貼文圖片設計(IG / 小紅書)</li>
+          <li>系列影片 · 統一視覺風格</li>
+          <li>內容方向與節奏建議</li>
+          <li>優先排程 + 彈性交件</li>
+          <li>長期合作另有優惠</li>
+        </ul>
+        <div class="service-price">
+          <div class="price-row"><span>貼文設計</span><strong>依張數討論</strong></div>
+          <div class="price-row"><span>系列 / 短期合作</span><strong>客製報價</strong></div>
+          <div class="price-row note"><span>☽</span><strong>歡迎私訊聊需求</strong></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============================================
+     5. 合作流程 PROCESS
+============================================ -->
+<section id="process">
+  <div class="container">
+
+    <div class="section-head reveal">
+      <span class="eyebrow">How We Work</span>
+      <h2 class="serif">合作流程，<em>4 步搞定</em>。</h2>
+      <p class="lead">
+        從第一次聯絡到影片交付，平均 5–7 天。流程簡單透明，不囉嗦。
+      </p>
+    </div>
+
+    <div class="process-grid">
+      <div class="process-step reveal">
+        <span class="process-num">01</span>
+        <h4>聊聊需求</h4>
+        <p>透過 IG 私訊或 LINE 告訴我你的目標、品牌調性與期待成果。</p>
+      </div>
+      <div class="process-step reveal delay-1">
+        <span class="process-num">02</span>
+        <h4>提案 & 報價</h4>
+        <p>我會回覆建議方向、剪輯風格參考與透明報價，確認後再開工。</p>
+      </div>
+      <div class="process-step reveal delay-2">
+        <span class="process-num">03</span>
+        <h4>素材 & 剪輯</h4>
+        <p>你給我素材，我用最懂社群觀看邏輯的方式幫你剪。3 天內交付初稿(可加急)。</p>
+      </div>
+      <div class="process-step reveal delay-3">
+        <span class="process-num">04</span>
+        <h4>交付 & 修改</h4>
+        <p>提供 2 次免費修改。確認後交付高畫質成品，直接上架使用。</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============================================
+     6. ABOUT 關於我
+============================================ -->
+<section class="about" id="about">
+  <div class="container about-grid">
+
+    <div class="about-photo reveal">
+      <!-- 🔁 替換成你的照片(直式 4:5 最佳) -->
+      <!-- <img src="your-photo.jpg" alt="[你的名字]"> -->
+      <div class="placeholder">
+        【你的工作照 / 生活照位置】<br />
+        建議直式 4:5，自然光、有質感
+      </div>
+    </div>
+
+    <div class="about-text reveal delay-1">
+      <span class="eyebrow">About Me</span>
+      <h2 class="serif">不只是把影片剪完，<br/><em>而是讓人看完</em>。</h2>
+
+      <p>
+        Hi，我是 <strong>Remi Chang</strong>，目前主要接短影音剪輯合作。
+        比起單純把影片剪完，我更在意的是「這支影片會不會被看完」。
+        我習慣用觀眾的觀看節奏去調整內容 ──
+        包含開頭吸引力、字幕節奏、資訊密度，讓影片更符合現在社群的觀看習慣。
+      </p>
+
+      <p>
+        目前主要服務個人創作者與剛起步的品牌，
+        特別適合<strong>預算有限、但希望穩定產出內容</strong>的人。
+        平時也透過自己經營的品牌 IG
+        <a href="https://www.instagram.com/universo__mart" target="_blank" rel="noopener" style="color: var(--accent-deep); border-bottom: 1px solid var(--accent);">@universo__mart</a>
+        持續累積作品與觀看反饋。
+      </p>
+
+      <div class="about-tags">
+        <span>✔ 個人 IP 創作者</span>
+        <span>✔ 剛起步的小型品牌</span>
+        <span>✔ 想穩定產出短影音的人</span>
+        <span>☽ 單支 / 短期合作皆可</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============================================
+     7. CTA 聯絡我
+============================================ -->
+<section class="cta" id="contact">
+  <div class="container cta-inner">
+
+    <span class="eyebrow reveal">Let's Work Together</span>
+
+    <h2 class="serif reveal delay-1">
+      想聊聊你的<br/>
+      <em>內容方向嗎?</em>
+    </h2>
+
+    <p class="lead reveal delay-2">
+      不管你是剛開始做內容、還是想穩定產出短影音，都歡迎先私訊聊聊。
+      回訊速度通常在 24 小時內。
+    </p>
+
+    <div class="cta-channels reveal delay-3">
+
+      <!-- 🔁 替換你的 IG -->
+      <a href="https://www.instagram.com/universo__mart" target="_blank" rel="noopener" class="channel primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+        Instagram 私訊我
+      </a>
+
+      <!-- 🔁 如果有 Facebook Messenger，改成 https://m.me/你的fb帳號 -->
+      <a href="https://m.me/seojinmydear" target="_blank" rel="noopener" class="channel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C6.48 2 2 6.14 2 11.25c0 2.88 1.46 5.45 3.75 7.13V22l3.43-1.88c.92.25 1.88.39 2.82.39 5.52 0 10-4.14 10-9.25S17.52 2 12 2z"/>
+          <path d="m6 13 3.5-5 3 3.5L17 8"/>
+        </svg>
+        Messenger 私訊
+      </a>
+
+      <a href="https://line.me/ti/p/~seojinmydear" target="_blank" rel="noopener" class="channel">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+        LINE · seojinmydear
+      </a>
+
+    </div>
+
+    <p class="cta-note reveal delay-3">
+      ☽ 訊息請註明:帳號 / 品牌名稱、想做的內容類型、預算範圍。
+    </p>
+
+  </div>
+</section>
+
+
+<!-- ============================================
+     FOOTER
+============================================ -->
+<footer>
+  <span class="brand serif">Remi <span style="color: var(--accent-deep);">Chang.</span></span>
+  © 2026 Remi Chang · 用心剪每一支影片。
+</footer>
+
+
+<!-- ============================================
+     互動 JS:Nav 滾動陰影 + 進場動畫
+============================================ -->
+<script>
+  // Nav 滾動加邊線
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // 進場動畫(IntersectionObserver)
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach((el) => io.observe(el));
+</script>
+
+</body>
+</html>
